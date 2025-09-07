@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Darts Scoreboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c;
+        }
+        .dart-icon {
+            filter: grayscale(100%);
+            opacity: 0.5;
+            transition: filter 0.3s, opacity 0.3s;
+        }
+        .dart-icon.active {
+            filter: grayscale(0%);
+            opacity: 1;
+        }
+        .dart-icon.used {
+            opacity: 0.2;
+        }
+        .button-tile {
+            @apply bg-gray-600 hover:bg-gray-500 rounded-lg p-1 flex items-center justify-center font-bold transition-transform transform active:scale-95 text-xs md:text-sm;
+            min-height: 2.5rem;
+        }
+        .single {
+            @apply text-white;
+        }
+        .double {
+            @apply text-green-400;
+        }
+        .triple {
+            @apply text-red-400;
+        }
+        /* Custom styles to make the entire layout fit on one screen */
+        .main-container {
+            height: 100vh;
+            max-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .nav-buttons {
+            padding: 0.5rem;
+        }
+    </style>
+</head>
+<body class="text-white flex items-center justify-center p-2">
+
+    <!-- Main Container -->
+    <div class="w-full max-w-2xl bg-gray-800 rounded-3xl shadow-2xl overflow-hidden main-container">
+
+        <!-- Header / Score Display -->
+        <div class="bg-gray-700 p-4 flex items-center justify-between">
+			<div class="flex">
+				<img src="../img/fullscreen_icon_spacer.png" alt="fullscreen icon" class="w-24 h-8 mr-2 cursor-pointer" 
+                    onclick="
+                        if (!document.fullscreenElement) {
+                            document.documentElement.requestFullscreen();
+                        } 
+                        else {
+                            if (document.exitFullscreen) {
+                                document.exitFullscreen();
+                            }
+                        }
+                    ">
+			</div>
+            <!-- Center: Score -->
+            <div class="flex flex-col items-center">
+                <span id="total-score" class="text-5xl md:text-7xl font-light">0</span>
+            </div>
+
+            <!-- Right: Dart icons -->
+            <div class="flex items-center space-x-2">
+                <img id="dart-1" src="../img/darts_arrow.png" alt="fullscreen icon" class="dart-icon w-8 h-8" >
+                <img id="dart-2" src="../img/darts_arrow.png" alt="fullscreen icon" class="dart-icon w-8 h-8" >
+                <img id="dart-3" src="../img/darts_arrow.png" alt="fullscreen icon" class="dart-icon w-8 h-8" >
+            </div>
+        </div>
+        
+        <!-- PPR Display -->
+        <div id="ppr-container" class="bg-gray-900 text-center py-3 text-md text-gray-300 font-medium">
+            PPR: <span id="ppr-value">0.00</span>
+        </div>
+
+
+        <!-- Score Buttons Area -->
+        <div class="flex-grow overflow-y-auto">
+            <div id="score-buttons" class="flex flex-col">
+				<div class="grid grid-cols-3">
+					<button id="miss-btn" class="bg-orange-50 text-black font-bold py-3 text-lg border border-stone-500 active:scale-95 h-20" data-score="0" data-multiplier="1">MISS</button>
+					<button id="bull-btn" class="bg-orange-50 text-black font-bold py-3 text-lg border border-stone-500 transform active:scale-95 h-20" data-score="25" data-multiplier="1">BULL (25)</button>
+					<button id="dbull-btn" class="bg-orange-100 text-black font-bold py-3 text-lg border border-stone-500 transition-transform transform active:scale-95 h-20" data-score="50" data-multiplier="1">BULL (50)</button>
+				</div>
+                <!-- Singles -->
+                <div class="bg-orange-50 grid grid-cols-10 text-black border border-stone-500">
+                    <button class="button-tile single border border-stone-500 h-20" data-score="20">20</button>
+                    <button class="button-tile single border border-stone-500 h-20" data-score="19">19</button>
+                    <button class="button-tile single border border-stone-500 h-20" data-score="18">18</button>
+                    <button class="button-tile single border border-stone-500 h-20" data-score="17">17</button>
+                    <button class="button-tile single border border-stone-500 h-20" data-score="16">16</button>
+                    <button class="button-tile single border border-stone-500 h-20" data-score="15">15</button>
+                    <button class="button-tile single border border-stone-500 h-20" data-score="14">14</button>
+                    <button class="button-tile single border border-stone-500 h-20" data-score="13">13</button>
+                    <button class="button-tile single border border-stone-500 h-20" data-score="12">12</button>
+                    <button class="button-tile single border border-stone-500 h-20" data-score="11">11</button>
+                    <button class="button-tile single border border-stone-500 h-20" data-score="10">10</button>
+                    <button class="button-tile single border border-stone-500 h-20" data-score="9">9</button>
+                    <button class="button-tile single border border-stone-500 h-20" data-score="8">8</button>
+                    <button class="button-tile single border border-stone-500 h-20" data-score="7">7</button>
+                    <button class="button-tile single border border-stone-500 h-20" data-score="6">6</button>
+                    <button class="button-tile single border border-stone-500 h-20" data-score="5">5</button>
+                    <button class="button-tile single border border-stone-500 h-20" data-score="4">4</button>
+                    <button class="button-tile single border border-stone-500 h-20" data-score="3">3</button>
+                    <button class="button-tile single border border-stone-500 h-20" data-score="2">2</button>
+                    <button class="button-tile single border border-stone-500 h-20" data-score="1">1</button>
+                </div>
+
+                <!-- Doubles -->
+				<div class="bg-orange-100 grid grid-cols-10 text-black">
+					<button class="button-tile double border border-stone-500 h-20" data-score="20">D20</button>
+					<button class="button-tile double border border-stone-500 h-20" data-score="19">D19</button>
+					<button class="button-tile double border border-stone-500 h-20" data-score="18">D18</button>
+					<button class="button-tile double border border-stone-500 h-20" data-score="17">D17</button>
+					<button class="button-tile double border border-stone-500 h-20" data-score="16">D16</button>
+					<button class="button-tile double border border-stone-500 h-20" data-score="15">D15</button>
+					<button class="button-tile double border border-stone-500 h-20" data-score="14">D14</button>
+					<button class="button-tile double border border-stone-500 h-20" data-score="13">D13</button>
+					<button class="button-tile double border border-stone-500 h-20" data-score="12">D12</button>
+					<button class="button-tile double border border-stone-500 h-20" data-score="11">D11</button>
+					<button class="button-tile double border border-stone-500 h-20" data-score="10">D10</button>
+					<button class="button-tile double border border-stone-500 h-20" data-score="9">D9</button>
+					<button class="button-tile double border border-stone-500 h-20" data-score="8">D8</button>
+					<button class="button-tile double border border-stone-500 h-20" data-score="7">D7</button>
+					<button class="button-tile double border border-stone-500 h-20" data-score="6">D6</button>
+					<button class="button-tile double border border-stone-500 h-20" data-score="5">D5</button>
+					<button class="button-tile double border border-stone-500 h-20" data-score="4">D4</button>
+					<button class="button-tile double border border-stone-500 h-20" data-score="3">D3</button>
+					<button class="button-tile double border border-stone-500 h-20" data-score="2">D2</button>
+					<button class="button-tile double border border-stone-500 h-20" data-score="1">D1</button>
+                </div>
+
+                <!-- Triples -->
+                <div class="bg-orange-200 grid grid-cols-10 text-black">
+					<button class="button-tile triple border border-stone-500 h-20" data-score="20">T20</button>
+					<button class="button-tile triple border border-stone-500 h-20" data-score="19">T19</button>
+					<button class="button-tile triple border border-stone-500 h-20" data-score="18">T18</button>
+					<button class="button-tile triple border border-stone-500 h-20" data-score="17">T17</button>
+					<button class="button-tile triple border border-stone-500 h-20" data-score="16">T16</button>
+					<button class="button-tile triple border border-stone-500 h-20" data-score="15">T15</button>
+					<button class="button-tile triple border border-stone-500 h-20" data-score="14">T14</button>
+					<button class="button-tile triple border border-stone-500 h-20" data-score="13">T13</button>
+					<button class="button-tile triple border border-stone-500 h-20" data-score="12">T12</button>
+					<button class="button-tile triple border border-stone-500 h-20" data-score="11">T11</button>
+					<button class="button-tile triple border border-stone-500 h-20" data-score="10">T10</button>
+					<button class="button-tile triple border border-stone-500 h-20" data-score="9">T9</button>
+					<button class="button-tile triple border border-stone-500 h-20" data-score="8">T8</button>
+					<button class="button-tile triple border border-stone-500 h-20" data-score="7">T7</button>
+					<button class="button-tile triple border border-stone-500 h-20" data-score="6">T6</button>
+					<button class="button-tile triple border border-stone-500 h-20" data-score="5">T5</button>
+					<button class="button-tile triple border border-stone-500 h-20" data-score="4">T4</button>
+					<button class="button-tile triple border border-stone-500 h-20" data-score="3">T3</button>
+					<button class="button-tile triple border border-stone-500 h-20" data-score="2">T2</button>
+					<button class="button-tile triple border border-stone-500 h-20" data-score="1">T1</button>				
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="grid grid-cols-3">
+            <button id="undo-btn" class="bg-neutral-100 border border-stone-500 text-black font-bold py-3 flex items-center justify-center text-lg transition-transform transform active:scale-95">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l-4-4m0 0l4-4m-4 4h11a4 4 0 110 8h-1"/>
+                </svg>
+            </button>
+            <button id="reset-ppr-btn" class="bg-neutral-300 border border-stone-500 text-black font-bold py-10 text-lg transition-transform transform active:scale-95">RESET PPR</button>
+            <button id="next-round-btn" class="bg-yellow-500 text-black font-bold py-3 px-10 text-lg border border-stone-500 row-span-2 transition-transform transform active:scale-95">NEXT ROUND</button>
+        </div>
+    </div>
+
+    <script>
+        // Get references to DOM elements
+        const totalScoreDisplay = document.getElementById('total-score');
+        const pprValueDisplay = document.getElementById('ppr-value');
+        const scoreButtons = document.getElementById('score-buttons');
+        const nextRoundButton = document.getElementById('next-round-btn');
+        const undoButton = document.getElementById('undo-btn');
+        const resetPprButton = document.getElementById('reset-ppr-btn');
+        const dartIcons = [
+            document.getElementById('dart-1'),
+            document.getElementById('dart-2'),
+            document.getElementById('dart-3')
+        ];
+
+        // State variables
+        let totalScore = 0; // Score for the current round
+        let dartsThrown = 0;
+        let scoreHistory = [];
+        let totalPointsAllRounds = 0;
+        let totalRounds = 0;
+
+        // Function to update the display
+        function updateDisplay() {
+            totalScoreDisplay.textContent = totalScore;
+            dartIcons.forEach((icon, index) => {
+                icon.classList.remove('used', 'active');
+                if (index < dartsThrown) {
+                    icon.classList.add('used');
+                } else {
+                    icon.classList.add('active');
+                }
+            });
+
+            // Calculate and display PPR
+            const ppr = totalRounds > 0 ? totalPointsAllRounds / totalRounds : 0;
+            pprValueDisplay.textContent = ppr.toFixed(2);
+        }
+
+        // Shared handler for all score button clicks
+        function handleScoreClick(event) {
+            const button = event.target.closest('button');
+            if (button && dartsThrown < 3) {
+                let score = parseInt(button.dataset.score, 10);
+                
+                // Determine multiplier based on class
+                if (button.classList.contains('double')) {
+                    score *= 2;
+                } else if (button.classList.contains('triple')) {
+                    score *= 3;
+                } else if (button.textContent === 'DBULL') {
+                    score = 50;
+                } else if (button.textContent === 'BULL') {
+                    score = 25;
+                }
+
+                totalScore += score;
+                scoreHistory.push(score);
+                dartsThrown++;
+                updateDisplay();
+            }
+        }
+
+        // Attach event listeners
+        scoreButtons.addEventListener('click', handleScoreClick);
+
+        // Handle "Next Round" button click
+        nextRoundButton.addEventListener('click', () => {
+            // Update PPR stats before resetting the round
+            if (dartsThrown > 0) {
+                totalPointsAllRounds += totalScore;
+                totalRounds++;
+            }
+            
+            // Reset for the new round
+            totalScore = 0;
+            dartsThrown = 0;
+            scoreHistory = [];
+            updateDisplay();
+        });
+        
+        // Handle "Undo" button click
+        undoButton.addEventListener('click', () => {
+             if (scoreHistory.length > 0) {
+                const lastScore = scoreHistory.pop();
+                totalScore -= lastScore;
+                dartsThrown--;
+                updateDisplay();
+            }
+        });
+
+        // Handle "Reset PPR" button click
+        resetPprButton.addEventListener('click', () => {
+            totalPointsAllRounds = 0;
+            totalRounds = 0;
+            updateDisplay();
+        });
+
+
+        // Initial display update
+        updateDisplay();
+    </script>
+</body>
+</html>
+
